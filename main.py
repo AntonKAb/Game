@@ -53,9 +53,9 @@ class Hero(games.Sprite):
             Hero.dir = 1
 
         if games.keyboard.is_pressed(games.K_a):
-            self.x = -1
+            self.dx = -1
         if games.keyboard.is_pressed(games.K_d):
-            self.x = 1
+            self.dx = 1
 
         if self.left < 0:
             self.left = 0
@@ -77,11 +77,15 @@ class Hero(games.Sprite):
                     self.health.value -= 1
         if self.health.value == 0:
             self.endgame()
-
         if self.health.value <= 0:
             self.endgame()
+        self.next_direction()
 
-    # def next_direction(self):
+    def next_direction(self):
+        if Hero.dir == -1:
+            self.image = Hero.image[1]
+        else:
+            self.image = Hero.image[0]
     #     self.direction *= -1
     #     depend = {-1: 1, 1: 0}
     #     self.image = Hero.image[depend[self.direction]]
@@ -128,10 +132,19 @@ class Bullet(games.Sprite):
         Bullet.sound.play()
 
     def update(self):
-        for _ in self.overlapping_sprites:
-            if not games.keyboard.is_pressed(games.K_SPACE):
-                for sprite in self.overlapping_sprites:
-                    sprite.destroy()
+        if Hero.dir == 1:
+            self.dx = 15
+            for _ in self.overlapping_sprites:
+                if not games.keyboard.is_pressed(games.K_SPACE):
+                    for sprite in self.overlapping_sprites:
+                        sprite.destroy()
+        else:
+            self.dx = -15
+            self.x *= -1
+            for _ in self.overlapping_sprites:
+                if not games.keyboard.is_pressed(games.K_SPACE):
+                    for sprite in self.overlapping_sprites:
+                        sprite.destroy()
 
 
 class Move_Right(games.Animation):
