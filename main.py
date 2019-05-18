@@ -9,17 +9,20 @@ class Hero(games.Sprite):
     first = 1
     second = 2
 
-    image = games.load_image('img/hero_11.png')
+    dir = 1
+    image = [0, 0]
+    image[0] = games.load_image('img/hero_11.png')
+    image[1] = pygame.transform.flip(image[0], 1, 0)
     sound = games.load_sound('sounds/game_over.wav')
-    images = {first: image, second: pygame.transform.flip(image, 1, 0)}
 
     reloading = 0
     pause = 70
 
-    def __init__(self):
-        super(Hero, self).__init__(image=Hero.image,
-                                   x=500,
-                                   bottom=games.screen.height - 90)
+    def __init__(self, dx):
+        super(Hero, self).__init__(image=Hero.image[0],
+                                   x=games.screen.width / 2,
+                                   bottom=games.screen.height - 90, dx=dx)
+        self.dx = dx
 
         self.score = games.Text(value=0,
                                 size=32,
@@ -44,14 +47,15 @@ class Hero(games.Sprite):
     def update(self):
         if self.reloading > 0:
             self.reloading -= 1
+        if games.keyboard.is_pressed(games.K_q):
+            Hero.dir = -1
+        if games.keyboard.is_pressed(games.K_e):
+            Hero.dir = 1
 
         if games.keyboard.is_pressed(games.K_a):
-
-            self.x -= 1
-
+            self.x = -1
         if games.keyboard.is_pressed(games.K_d):
-            Hero.image = games.load_image('img/hero_11.png')
-            self.x += 1
+            self.x = 1
 
         if self.left < 0:
             self.left = 0
@@ -77,11 +81,10 @@ class Hero(games.Sprite):
         if self.health.value <= 0:
             self.endgame()
 
-    def change(self):
-        self.image = games.load_image('img/hero_12.png')
-
-    def coin(self):
-        self.score += 1
+    # def next_direction(self):
+    #     self.direction *= -1
+    #     depend = {-1: 1, 1: 0}
+    #     self.image = Hero.image[depend[self.direction]]
 
 
     @staticmethod
@@ -134,10 +137,10 @@ class Bullet(games.Sprite):
 class Move_Right(games.Animation):
     images = []
 
-    def __init__(self):
+    def __init__(self, x):
         for i in range(1, 6):
             Move_Right.images.append('animation/move_r' + str(i) + '.png')
-        super(Move_Right, self).__init__(images=Move_Right.images, x=300, repeat_interval=10,
+        super(Move_Right, self).__init__(images=Move_Right.images, x=x, repeat_interval=10,
                                          n_repeats=1, bottom=games.screen.height - 90)
 
 
@@ -159,7 +162,7 @@ class Start:
         games.music.load('music/fon.wav')
         games.music.play(-1)
 
-        self.hero = Hero()
+        self.hero = Hero(dx=0)
         games.screen.add(self.hero)
 
     def begin(self):
